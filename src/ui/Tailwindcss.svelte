@@ -12,4 +12,17 @@
       left: 50%;
       transform: translate(-50%, -50%);
   }
+
+  button {
+      transition: background 200ms, opacity 200ms;
+  }
+
+  button[disabled] {
+      opacity: .35;
+      pointer-events: none;
+  }
+
+  * {
+      box-sizing: border-box;
+  }
 </style>

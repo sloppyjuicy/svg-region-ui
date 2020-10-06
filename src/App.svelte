@@ -10,6 +10,7 @@
 
     import { getFragments } from "./common/helpers";
     import { downloadFile, copyToClipboard } from "./common/general";
+import SvgForm from "./SvgForm.svelte";
 
     let fragments = getFragments();
 
@@ -115,6 +116,7 @@
 
 <Tailwindcss />
 <main class="absolute inset-0 flex">
+    {#if fragments.src }
     <div name="sidebar" class="h-full flex flex-col">
         <MapDetails bind:width bind:height {ratio} />
         <RegionList bind:regions {top_left} {bottom_right} />
@@ -135,6 +137,9 @@
             {options}
             features={regions} />
     </div>
+    {:else}
+        <SvgForm bind:src={fragments.src}></SvgForm>
+    {/if}
 </main>
 <div hidden>
     {#each regions as region}
