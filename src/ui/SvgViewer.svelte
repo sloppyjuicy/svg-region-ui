@@ -1,6 +1,6 @@
 
 <script lang="ts">
-    import { createViewer, removeViewer, updateViewer, applyGlobalStyles, getViewer } from '@yuion/svg-viewer';
+    import { createViewer, removeViewer, updateViewer, applyGlobalStyles, getViewer, listenToViewerChanges } from '@yuion/svg-viewer';
     import { onDestroy, onMount } from 'svelte';
 
     /** URL to the SVG file */
@@ -42,6 +42,7 @@
         createViewer({ url: src, element: viewer_el, labels, features, styles, focus, actions, options }).then(id => {
             viewer = id;
             ratio = getViewer(viewer)?.ratio || 1;
+            listenToViewerChanges(id).subscribe((view) => zoom = view.zoom);
         });
     }
 

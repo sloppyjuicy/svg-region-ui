@@ -34,14 +34,8 @@ export interface MapRegion {
     name: string;
     /** Color to display region in on overlay */
     color: string;
-    /** Top coordinate of the region */
-    top: number;
-    /** Left coordinate of the region */
-    left: number;
-    /** Bottom coordinate of the region */
-    bottom: number;
-    /** Right coordinate of the region */
-    right: number;
+    /** Array of points that define the shape of the region */
+    points: [number, number][];
     /** Height of the  region */
     height: number;
     /** Width of the region */

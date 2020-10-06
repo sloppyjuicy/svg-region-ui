@@ -9,25 +9,31 @@
 
     $: {
         if (!regions || regions.length < 1) {
-            regions = [{ name: 'Region 1', color: '#e66465', top: .5, left: .5, bottom: .5, right: .5 }]
+            regions = [{ name: 'Area 1', color: '#e66465', top: .5, left: .5, bottom: .5, right: .5 }]
         }
-        regions[active_region].left = Math.floor(top_left.x * 1000) / 1000;
-        regions[active_region].top = Math.floor(top_left.y * 1000) / 1000;
-        regions[active_region].right = Math.floor(bottom_right.x * 1000) / 1000;
-        regions[active_region].bottom = Math.floor(bottom_right.y * 1000) / 1000;
-        regions[active_region].height = Math.abs(regions[active_region].top - regions[active_region].bottom);
-        regions[active_region].width = Math.abs(regions[active_region].left - regions[active_region].right);
+        const top = Math.floor(top_left.y * 1000) / 1000;
+        const left = Math.floor(top_left.x * 1000) / 1000;
+        const right = Math.floor(bottom_right.x * 1000) / 1000;
+        const bottom = Math.floor(bottom_right.y * 1000) / 1000;
+        const points = [
+            [left, top],
+            [right, top],
+            [right, bottom],
+            [left, bottom]
+        ]
+        regions[active_region].points = points;
+        regions[active_region].height = Math.abs(top - bottom);
+        regions[active_region].width = Math.abs(left - right);
         regions[active_region].location = {
-            x: (regions[active_region].left + regions[active_region].right) / 2,
-            y: (regions[active_region].top + regions[active_region].bottom) / 2
+            x: (left + right) / 2,
+            y: (top + bottom) / 2
         };
         regions = regions;
-        console.log('R:', regions);
     }
 
     function newRegion() {
         regions = regions.concat([{
-            name: `Region ${regions.length + 1}`,
+            name: `Area ${regions.length + 1}`,
             color: '#e66465',
             top: .5,
             left: .5,
@@ -76,7 +82,7 @@
     <li on:click={newRegion}>
         <button class=" rounded p-2 flex items-center w-full hover:bg-gray-100">
             <Icon klass="material-icons" content="add"/>
-            New region
+            New Area
         </button>
     </li>
     {#each regions as region, i }
@@ -88,7 +94,11 @@
                     <div name="badge" class="px-2 py-1 rounded text-white">Active</div>
                 {/if}
                 <div class="w-0 flex-1"></div>
-                <div><span>{'{'} x: {region.left}, y: {region.top} {'}'}</span>,&nbsp;<span>{'{'} x: {region.right}, y: {region.bottom} {'}'}</span></div>
+                <div>
+                    <span>{'{'} x: {region.points[0][0]}, y: {region.points[0][1]} {'}'}</span>
+                    ,&nbsp;
+                    <span>{'{'} x: {region.points[3][0]}, y: {region.points[3][1]} {'}'}</span>
+                </div>
             </div>
         </li>
     {/each}
