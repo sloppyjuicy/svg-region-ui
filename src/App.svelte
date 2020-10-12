@@ -1,16 +1,15 @@
 <script lang="ts">
     import { Md5 } from "ts-md5";
+    import { isChildFrame, sendMessage } from './common/iframe';
+    import { getFragments } from "./common/helpers";
+    import { downloadFile, copyToClipboard, } from "./common/general";
 
-    import ModeSwitcher from "./ui/ModeSwitcher.svelte";
     import SvgViewer from "./ui/SvgViewer.svelte";
     import Tailwindcss from "./ui/Tailwindcss.svelte";
     import OverlayOutlet from "./ui/OverlayOutlet.svelte";
     import MapDetails from "./regions/MapDetails.svelte";
     import RegionList from "./regions/RegionList.svelte";
-
-    import { getFragments } from "./common/helpers";
-    import { downloadFile, copyToClipboard } from "./common/general";
-import SvgForm from "./SvgForm.svelte";
+    import SvgForm from "./SvgForm.svelte";
 
     let fragments = getFragments();
 
@@ -69,6 +68,22 @@ import SvgForm from "./SvgForm.svelte";
         return updated;
     };
 
+    function saveMetadata() {
+        sendMessage(
+            {
+                type: 'backoffice',
+                action: 'metadata',
+                name: 'map_regions',
+                content: {
+                    url: fragments.src,
+                    width,
+                    height,
+                    areas: regions.map(formatRegion),
+                }
+            }
+        );
+    }
+
     function downloadMetadata() {
         downloadFile(
             JSON.stringify(
@@ -120,10 +135,15 @@ import SvgForm from "./SvgForm.svelte";
     <div name="sidebar" class="h-full flex flex-col">
         <MapDetails bind:width bind:height {ratio} />
         <RegionList bind:regions {top_left} {bottom_right} />
-
+        {#if isChildFrame()}
+        <button
+            class="bg-white hover:bg-grey-100 rounded p-2 mx-4 my-2 text-black shadow active:shadow-xs"
+            on:click={saveMetadata}>Save Metadata</button>
+        {:else}
         <button
             class="bg-white hover:bg-grey-100 rounded p-2 mx-4 my-2 text-black shadow active:shadow-xs"
             on:click={downloadMetadata}>Download Metadata</button>
+        {/if}
         <button
             class="bg-white hover:bg-grey-100 rounded p-2 mx-4 my-2 mb-4 text-black shadow active:shadow-xs"
             on:click={copyMetadata}>Copy Metadata</button>
