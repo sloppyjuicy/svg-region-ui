@@ -43,6 +43,7 @@
             viewer = id;
             ratio = getViewer(viewer)?.ratio || 1;
             listenToViewerChanges(id).subscribe((view) => zoom = view.zoom);
+            setTimeout(() => updateViewer(viewer, { zoom: 1 }), 30);
         });
     }
 

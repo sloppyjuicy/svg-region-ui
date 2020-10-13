@@ -8,7 +8,6 @@
     let box: ClientRect;
 
     function updatePosition() {
-        console.log('Update Position');
         if (data?.target) {
             box = data.target.getBoundingClientRect();
         }

@@ -1,8 +1,8 @@
 <script lang="ts">
     import { Md5 } from "ts-md5";
-    import { isChildFrame, sendMessage } from './common/iframe';
+    import { isChildFrame, retrieveData, sendMessage } from "./common/iframe";
     import { getFragments } from "./common/helpers";
-    import { downloadFile, copyToClipboard, } from "./common/general";
+    import { downloadFile, copyToClipboard } from "./common/general";
 
     import SvgViewer from "./ui/SvgViewer.svelte";
     import Tailwindcss from "./ui/Tailwindcss.svelte";
@@ -31,7 +31,6 @@
                 top_left = p;
                 bottom_right = p;
                 moving = true;
-                console.log(p);
             },
             action: "mousedown",
         },
@@ -52,6 +51,13 @@
         },
     ];
 
+    const formatted_data = () => ({
+        url: fragments.src,
+        width,
+        height,
+        areas: regions.map(formatRegion),
+    });
+
     const formatRegion = (r, idx) => {
         const updated = {
             id: `${Md5.hashStr(fragments.src)}-area-${idx + 1}`,
@@ -69,51 +75,41 @@
     };
 
     function saveMetadata() {
-        sendMessage(
-            {
-                type: 'backoffice',
-                action: 'metadata',
-                name: 'map_regions',
-                content: {
-                    url: fragments.src,
-                    width,
-                    height,
-                    areas: regions.map(formatRegion),
-                }
-            }
-        );
+        sendMessage({
+            type: "backoffice",
+            action: "metadata",
+            name: "map_regions",
+            content: formatted_data(),
+        });
     }
 
-    function downloadMetadata() {
+    const downloadMetadata = () =>
         downloadFile(
-            JSON.stringify(
-                {
-                    url: fragments.src,
-                    width,
-                    height,
-                    areas: regions.map(formatRegion),
-                },
-                undefined,
-                4
-            ),
+            JSON.stringify(formatted_data(), undefined, 4),
             "map-metadata.json"
         );
-    }
 
-    function copyMetadata() {
-        copyToClipboard(
-            JSON.stringify(
-                {
-                    url: fragments.src,
-                    width,
-                    height,
-                    areas: regions.map(formatRegion),
-                },
-                undefined,
-                4
-            )
-        );
-    }
+    const copyMetadata = () =>
+        copyToClipboard(JSON.stringify(formatted_data(), undefined, 4));
+
+    retrieveData().then(
+        (d) => {
+            height = d.height || height;
+            width = d.width || width;
+            regions = d.areas;
+            if (regions[0]) {
+                top_left = {
+                    x: regions[0].left,
+                    y: regions[0].top,
+                };
+                bottom_right = {
+                    x: regions[0].right,
+                    y: regions[0].bottom,
+                };
+            }
+        },
+        (e) => console.error(e)
+    );
 </script>
 
 <style>
@@ -131,34 +127,34 @@
 
 <Tailwindcss />
 <main class="absolute inset-0 flex">
-    {#if fragments.src }
-    <div name="sidebar" class="h-full flex flex-col">
-        <MapDetails bind:width bind:height {ratio} />
-        <RegionList bind:regions {top_left} {bottom_right} />
-        {#if isChildFrame()}
-        <button
-            class="bg-white hover:bg-grey-100 rounded p-2 mx-4 my-2 text-black shadow active:shadow-xs"
-            on:click={saveMetadata}>Save Metadata</button>
-        {:else}
-        <button
-            class="bg-white hover:bg-grey-100 rounded p-2 mx-4 my-2 text-black shadow active:shadow-xs"
-            on:click={downloadMetadata}>Download Metadata</button>
-        {/if}
-        <button
-            class="bg-white hover:bg-grey-100 rounded p-2 mx-4 my-2 mb-4 text-black shadow active:shadow-xs"
-            on:click={copyMetadata}>Copy Metadata</button>
-    </div>
-    <div name="map" class="relative h-full flex-1">
-        <SvgViewer
-            bind:ratio
-            bind:zoom
-            src={fragments.src}
-            {actions}
-            {options}
-            features={regions} />
-    </div>
+    {#if fragments.src}
+        <div name="sidebar" class="h-full flex flex-col">
+            <MapDetails bind:width bind:height {ratio} />
+            <RegionList bind:regions {top_left} {bottom_right} />
+            {#if isChildFrame()}
+                <button
+                    class="bg-white hover:bg-grey-100 rounded p-2 mx-4 my-2 text-black shadow active:shadow-xs"
+                    on:click={saveMetadata}>Save Metadata</button>
+            {:else}
+                <button
+                    class="bg-white hover:bg-grey-100 rounded p-2 mx-4 my-2 text-black shadow active:shadow-xs"
+                    on:click={downloadMetadata}>Download Metadata</button>
+            {/if}
+            <button
+                class="bg-white hover:bg-grey-100 rounded p-2 mx-4 my-2 mb-4 text-black shadow active:shadow-xs"
+                on:click={copyMetadata}>Copy Metadata</button>
+        </div>
+        <div name="map" class="relative h-full flex-1">
+            <SvgViewer
+                bind:ratio
+                bind:zoom
+                src={fragments.src}
+                {actions}
+                {options}
+                features={regions} />
+        </div>
     {:else}
-        <SvgForm bind:src={fragments.src}></SvgForm>
+        <SvgForm bind:src={fragments.src} />
     {/if}
 </main>
 <div hidden>
@@ -166,7 +162,7 @@
         <div
             bind:this={region.content}
             class="relative"
-            style={'min-height:' + (region.height * 10000 * zoom) + '%; min-width:' + (region.width * 10000 * zoom) + '%;border: 2px solid ' + region.color + '; background-color: ' + region.color + '88;'}>
+            style={'min-height:' + region.height * 10000 * zoom + '%; min-width:' + region.width * 10000 * zoom + '%;border: 2px solid ' + region.color + '; background-color: ' + region.color + '88;'}>
             <div
                 class="absolute text-white text-shadow center whitespace-no-wrap">
                 {region.name}

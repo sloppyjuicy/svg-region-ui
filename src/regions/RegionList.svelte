@@ -1,5 +1,6 @@
 <script lang="ts">
     import Icon from '../ui/Icon.svelte';
+    import { COLOURS } from '../common/globals';
 
     export let regions: MapRegion[] = [];
     export let top_left: Point = { x: .5, y: .5 };
@@ -34,7 +35,7 @@
     function newRegion() {
         regions = regions.concat([{
             name: `Area ${regions.length + 1}`,
-            color: '#e66465',
+            color: COLOURS[regions.length % COLOURS.length],
             top: .5,
             left: .5,
             bottom: .5,
