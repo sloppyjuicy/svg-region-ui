@@ -36,6 +36,7 @@ export function retrieveData(): Promise<RegionDetails> {
                                     id: i.id,
                                     color: COLOURS[idx % COLOURS.length],
                                     name: i.properties.name,
+                                    capacity: i.properties.capacity,
                                     points: i.geometry.coordinates,
                                     top: i.geometry.coordinates[0][1],
                                     left: i.geometry.coordinates[0][0],
@@ -54,7 +55,7 @@ export function retrieveData(): Promise<RegionDetails> {
                                         y: (i.geometry.coordinates[0][1] + i.geometry.coordinates[2][1]) / 2
                                     },
                                     content: null,
-                                } as MapRegion)
+                                } as any)
                         ),
                     });
                     window.removeEventListener("message", onMessage);

@@ -1,6 +1,8 @@
 <script lang="ts">
     import Icon from '../ui/Icon.svelte';
     import { COLOURS } from '../common/globals';
+    import type { MapRegion } from '../common/types';
+    import type { Point } from '@yuion/svg-viewer';
 
     export let regions: MapRegion[] = [];
     export let top_left: Point = { x: .5, y: .5 };
@@ -9,8 +11,9 @@
     let active_region = 0;
 
     $: {
+        console.log('Reacted');
         if (!regions || regions.length < 1) {
-            regions = [{ name: 'Area 1', color: '#e66465', top: .5, left: .5, bottom: .5, right: .5 }]
+            regions = [{ name: 'Area 1', capacity: 100, color: '#e66465', top: .5, left: .5, bottom: .5, right: .5 }]
         }
         const top = Math.floor(top_left.y * 1000) / 1000;
         const left = Math.floor(top_left.x * 1000) / 1000;
@@ -36,6 +39,7 @@
         regions = regions.concat([{
             name: `Area ${regions.length + 1}`,
             color: COLOURS[regions.length % COLOURS.length],
+            capacity: 100,
             top: .5,
             left: .5,
             bottom: .5,
@@ -43,12 +47,13 @@
             height: 0,
             width: 0,
             content: document.createElement('div')
-        }]);
+        } as any]);
         regions = regions;
         setActive(regions.length - 1);
     }
 
     function setActive(i: number) {
+        if (i === active_region) return;
         top_left = { x: regions[i].left, y: regions[i].top };
         bottom_right = { x: regions[i].right, y: regions[i].bottom };
         active_region = i;
@@ -88,6 +93,7 @@
     </li>
     {#each regions as region, i }
         <li class="p-2 flex items-center flex-wrap hover:bg-gray-100 cursor-pointer" on:click={e => setActive(i)}>
+            <input type="number" name="capacity" class="rounded w-16 px-3 mr-2 py-2" bind:value={region.capacity} placeholder="Capacity" />
             <input type="color" name="color" class="rounded" bind:value={region.color} />
             <input type="text" name="region-name" class="px-3 mx-2 py-2 flex-1 text-base bg-transparent" bind:value={region.name} placeholder="Region Name" />
             <div class="text-xs flex items-center w-full text-gray-500 justify-end">

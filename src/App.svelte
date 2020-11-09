@@ -3,6 +3,8 @@
     import { isChildFrame, retrieveData, sendMessage } from "./common/iframe";
     import { getFragments } from "./common/helpers";
     import { downloadFile, copyToClipboard } from "./common/general";
+    import type { MapRegion } from "./common/types";
+    import type { Point, ViewAction } from "@yuion/svg-viewer";
 
     import SvgViewer from "./ui/SvgViewer.svelte";
     import Tailwindcss from "./ui/Tailwindcss.svelte";
@@ -10,7 +12,6 @@
     import MapDetails from "./regions/MapDetails.svelte";
     import RegionList from "./regions/RegionList.svelte";
     import SvgForm from "./SvgForm.svelte";
-
 
     let fragments = getFragments();
 
@@ -61,7 +62,7 @@
 
     const formatRegion = (r, idx) => {
         const updated = {
-            id: `${Md5.hashStr(fragments.src)}-area-${idx + 1}`,
+            id: `${r.name.toLowerCase().split(' ').join('-')}`,
             type: "Feature",
             feature_type: "section",
             geometry: {
@@ -70,6 +71,7 @@
             },
             properties: {
                 name: r.name,
+                capacity: r.capacity
             },
         };
         return updated;
@@ -163,7 +165,7 @@
         <div
             bind:this={region.content}
             class="relative"
-            style={'min-height:' + region.height * 10000 * zoom + '%; min-width:' + region.width * 10000 * zoom + '%;border: 2px solid ' + region.color + '; background-color: ' + region.color + '88;'}>
+            style={'min-height:' + region.height * 1000 * zoom * ratio + '%; min-width:' + region.width * 1000 * zoom + '%;border: 2px solid ' + region.color + '; background-color: ' + region.color + '88;'}>
             <div
                 class="absolute text-white text-shadow center whitespace-no-wrap">
                 {region.name}

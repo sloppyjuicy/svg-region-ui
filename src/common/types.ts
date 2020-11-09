@@ -42,4 +42,6 @@ export interface MapRegion {
     width: number;
     /** HTML element associated with the map region */
     content: HTMLElement;
+    /** Maximum capacity of the region */
+    capacity: number;
 }

@@ -6,3 +6,6 @@ const app = new App({
 });
 
 export default app;
+
+(window as any).debug = true;
+console.log('Debug');

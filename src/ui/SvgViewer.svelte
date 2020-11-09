@@ -42,7 +42,10 @@
         createViewer({ url: src, element: viewer_el, labels, features, styles, focus, actions, options }).then(id => {
             viewer = id;
             ratio = getViewer(viewer)?.ratio || 1;
-            listenToViewerChanges(id).subscribe((view) => zoom = view.zoom);
+            listenToViewerChanges(id).subscribe((view) => {
+                zoom = view.zoom;
+                ratio = view.ratio;
+            });
             setTimeout(() => updateViewer(viewer, { zoom: 1 }), 30);
         });
     }
