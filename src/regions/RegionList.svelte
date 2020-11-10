@@ -50,12 +50,16 @@
         } as any]);
         regions = regions;
         setActive(regions.length - 1);
+        top_left = { x: .5, y: .5 };
+        bottom_right = { x: .5, y: .5 };
     }
 
     function setActive(i: number) {
         if (i === active_region) return;
-        top_left = { x: regions[i].left, y: regions[i].top };
-        bottom_right = { x: regions[i].right, y: regions[i].bottom };
+        const first_point = (regions[i].points || [])[0] || [.5, .5];
+        const third_point = (regions[i].points || [])[2] || [.5, .5];
+        top_left = { x: first_point[0], y: first_point[1] };
+        bottom_right = { x: third_point[0], y: third_point[1] };
         active_region = i;
     }
 
@@ -101,9 +105,9 @@
                     <div name="badge" class="px-2 py-1 rounded text-white">Active</div>
                 {/if}
                 <div class="w-0 flex-1"></div>
-                <div>
+                <div class="leading-tight">
                     <span>{'{'} x: {region.points[0][0]}, y: {region.points[0][1]} {'}'}</span>
-                    ,&nbsp;
+                    <br/>
                     <span>{'{'} x: {region.points[3][0]}, y: {region.points[3][1]} {'}'}</span>
                 </div>
             </div>
